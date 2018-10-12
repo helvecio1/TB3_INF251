@@ -47,7 +47,7 @@ always @(posedge clk or negedge reset)
                     end
                     soma: 
                        state = verificasaldo;
-                    verificasaldo: begin
+		     verificasaldo: 
 			if(cmp==1) state = vendeu;
                         else state = init;
                     vendeu:
@@ -72,13 +72,13 @@ always @( posedge reset)
 			if(reset) // inicia  para testes
 				begin
 				  memory[0] <= 5'd5;
-				  memory[1] <= 5'd20;
-				  memory[2] <= 5'd5;
-				  memory[3] <= 5'd10;
-				  memory[4] <= 5'd20;
+				  memory[1] <= 5'10;
+				  memory[2] <= 5'd20;
+				  memory[3] <= 5'd5;
+				  memory[4] <= 5'd10;
 				  memory[5] <= 5'd20;
-				  memory[6] <= 5'd10;
-				  memory[7] <= 5'd5;
+				  memory[6] <= 5'd5;
+				  memory[7] <= 5'd10;
 				end
 endmodule
 
@@ -87,7 +87,7 @@ reg [2:0] state;
 wire enM,inc;
 wire [4:0] mint, ptrIN, ptrOUT;
 parameter init=3'd0, readmem=3'd1, incrPtr=3'd2, aguardando=3'd3;
-reg5 m(mint, clk, rstM, enM, moedas); // moedas
+reg5 m(mint, clk, rstM, enM, moeda); // moedas
 Memoria mem(ptrOUT, mint, rst);
 reg5 PTR(ptrIN, clk, rst, inc, ptrOUT); // moedas
 assign ptrIN = ptrOUT + 1;
