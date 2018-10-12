@@ -21,12 +21,12 @@ end
 endmodule 
 
 module MaquinaDeVendas(input clk, reset, input [4:0] moeda, output VendeuSucesso, next);
-red next;
+reg next;
 reg [2:0] state;
-reg6 saldo(sin, clk, reset, en1,sout);
-parameter init=3'd0, pedido=3'd1, soma=3'd2, proxima=3'd3, vendeu=3'd4;
 wire cmp, en1;
 wire [5:0] sin, sout;
+reg6 saldo(sin, clk, reset, en1,sout);
+parameter init=3'd0, pedido=3'd1, soma=3'd2, verificasaldo=3'd3, vendeu=3'd4;
 assign sin = moeda + sout;
 assign cmp = (sout >= 6'd40);
 assign VendeuSucesso = (state == vendeu)?1:0;
@@ -39,19 +39,17 @@ always @(posedge clk or negedge reset)
           else
                case (state)
                     init: begin
-                      next = 0; state = pedido;
+			    next = 0; if(moeda==5'd0) state = pedido;
                     end
                     pedido: begin
                       next = 1; 
-				if(moeda>5'd0) state = soma;
+		      if(moeda>5'd0) state = soma;
                     end
-                    soma: begin
-                       if(cmp==1) state = vendeu;
-                       else state = proxima;
-                    end
-                    proxima: begin
-                      next = 0; state = pedido;
-                    end
+                    soma: 
+                       state = verificasaldo;
+                    verificasaldo: begin
+			if(cmp==1) state = vendeu;
+                        else state = init;
                     vendeu:
                          state = init;
                endcase
@@ -85,15 +83,13 @@ always @( posedge reset)
 endmodule
 
 module MaquinaDeCompra(input clk, rst, next, vendeu, output [4:0] moeda);
-reg [2:0] state; 
-parameter init=3'd0, readmem=3'd1, incrPtr=3'd2, verificavendeu=3'd3;
-reg5 m(min, clk, rstM, enM, moedas); // moedas
-Memoria mem(ptrOUT, min, rst);
-wire [4:0] min;
-wire enN,inc;
+reg [2:0] state;
+wire enM,inc;
+wire [4:0] mint, ptrIN, ptrOUT;
+parameter init=3'd0, readmem=3'd1, incrPtr=3'd2, aguardando=3'd3;
+reg5 m(mint, clk, rstM, enM, moedas); // moedas
+Memoria mem(ptrOUT, mint, rst);
 reg5 PTR(ptrIN, clk, rst, inc, ptrOUT); // moedas
-wire [4:0] ptrIN;
-wire [4:0] ptrOUT;
 assign ptrIN = ptrOUT + 1;
 assign rstM = (state == init )?0:1;
 assign enM = (state == readmem )?1:0;
@@ -111,10 +107,10 @@ always @(posedge clk or negedge rst)
                     readmem:
                          state = incrPtr;
                     incrPtr:
-                         state = verificavendeu;
-			    verificavendeu:
-				  if(vendeu) state = init;
-				  else state = readmem;               				endcase
+                         state = aguardando;
+		    aguardando:
+			    if(next == 0) state = init;
+	       endcase
      end
 endmodule
 
