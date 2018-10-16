@@ -30,7 +30,7 @@ parameter init=3'd0, pedido=3'd1, soma=3'd2, verificasaldo=3'd3, vendeu=3'd4;
 assign sin = moeda + sout;
 assign cmp = (sout >= 6'd40);
 assign VendeuSucesso = (state == vendeu)?1:0;
-assign en1 = (state === soma);
+assign en1 = (state == soma);
 
 always @(posedge clk or negedge reset)
      begin
@@ -72,7 +72,7 @@ always @( posedge reset)
 			if(reset) // inicia  para testes
 				begin
 				  memory[0] <= 5'd5;
-				  memory[1] <= 5'10;
+				  memory[1] <= 5'd10;
 				  memory[2] <= 5'd20;
 				  memory[3] <= 5'd5;
 				  memory[4] <= 5'd10;
